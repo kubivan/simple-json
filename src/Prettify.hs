@@ -1,6 +1,7 @@
 module Prettify where
 
 import Prelude hiding ((<>))
+import Debug.Trace(trace)
 
 data Doc = Empty
          | Char Char
@@ -88,10 +89,24 @@ pretty width x = best 0 [x]
                          | otherwise                = b
                          where least = min width col
 
+ident :: Int -> Doc -> Doc
+ident width x = transform 0 [x]
+    where transform _ [] = Empty
+          transform level (d:ds) = 
+              case d of 
+                Char '{' -> identElem level d <> transform (level+1) ds
+                Char '}' -> identElem level d <> transform (level-1) ds
+                Char _ -> d <> transform level ds
+                l `Concat` r -> transform level (l:r:ds)
+                l `Union` r -> transform level (l:ds)
+                Line -> Line <> transform level ds
+                Text _ -> identElem level d <> transform level ds
+                otherwise -> error ("pattern missed!" ++ show d)
+          identElem level x = Text (replicate (level*width) ' ') <> x
+
 fits :: Int -> String -> Bool
 w `fits` _ | w < 0 = False
 w `fits` ""        = True
 w `fits` ('\n':_)  = True
 w `fits` (c:cs)    = (w - 1) `fits` cs
-
 

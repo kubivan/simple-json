@@ -8,8 +8,7 @@ import Data.Bits (shiftR, (.&.))
 import Prelude hiding ((<>))
 import Numeric (showHex)
 import Data.Char (ord)
-import Prettify (Doc, (<>), char, double, fsep, hcat, punctuate, text,
-                 compact, pretty)
+import Prettify (Doc, (<>), char, double, fsep, hcat, punctuate, text)
 
 renderJValue :: JValue -> Doc
 renderJValue (JBool True)  = text "true"
