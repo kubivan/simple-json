@@ -94,15 +94,17 @@ ident width x = transform 0 [x]
     where transform _ [] = Empty
           transform level (d:ds) = 
               case d of 
-                Char '{' -> identElem level d <> transform (level+1) ds
+                Char '{' -> identElem level d <> Line <> transform (level+1) ds
                 Char '}' -> identElem level d <> transform (level-1) ds
+                Char ':' -> d <> transform level ds
+                Char ',' -> d <> transform level (Line:ds)
                 Char _ -> d <> transform level ds
                 l `Concat` r -> transform level (l:r:ds)
                 l `Union` r -> transform level (l:ds)
                 Line -> Line <> transform level ds
                 Text _ -> identElem level d <> transform level ds
                 otherwise -> error ("pattern missed!" ++ show d)
-          identElem level x = Text (replicate (level*width) ' ') <> x
+          identElem level x = x <>Text (replicate (level*width) ' ')
 
 fits :: Int -> String -> Bool
 w `fits` _ | w < 0 = False
